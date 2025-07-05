@@ -6,34 +6,51 @@ A personal Spotify API proxy that you can deploy to your own Cloudflare Workers 
 
 **🎉 No GitHub Account Required!** Choose your preferred deployment method:
 
-### 🌐 Method 1: Web Deploy (Easiest)
+### 🌐 Method 1: Smart Web Deploy (Easiest)
 
-**Perfect for non-technical users - no GitHub account needed!**
+**Perfect for non-technical users with intelligent validation - no GitHub account needed!**
 
 [![Open Web Deploy](https://img.shields.io/badge/Open%20Web%20Deploy-1db954?style=for-the-badge&logo=cloudflare)](https://abersager.github.io/spotify-proxy/)
 
-Visit the [**Web Deploy Tool**](https://abersager.github.io/spotify-proxy/) and follow the step-by-step guide. Choose from:
-- **🚀 Cloudflare Deploy Button** - One-click deployment
-- **💻 Download Script** - Automated deployment script
+Visit the [**Smart Web Deploy Tool**](https://abersager.github.io/spotify-proxy/) for an enhanced experience:
+
+**✨ Smart Features:**
+- 🔍 **Real-time token validation** - Instant feedback as you type
+- 🤖 **Auto-detects Account ID** - No manual copying required
+- ✅ **Permission verification** - Confirms access before deployment
+- 💡 **Interactive help** - Shows exact setup instructions
+- 🚀 **One-click deployment** - Deploy button activates when ready
+
+Choose from multiple deployment methods:
+- **🚀 Smart Cloudflare Deploy** - Validated one-click deployment
+- **💻 Download Scripts** - Both smart and basic versions
 - **⚙️ Manual Setup** - Step-by-step instructions
 
-### 💻 Method 2: Download & Run Script
+### 💻 Method 2: Smart Deployment Script
 
-**For users comfortable with command line:**
+**Enhanced automation with validation and guidance:**
 
 ```bash
-# Download the deployment script
-curl -O https://raw.githubusercontent.com/abersager/spotify-proxy/main/deploy-standalone.js
+# Download the smart deployment script
+curl -O https://raw.githubusercontent.com/abersager/spotify-proxy/main/deploy-smart.js
 
 # Run the script (requires Node.js)
-node deploy-standalone.js
+node deploy-smart.js
 ```
 
-The script will:
-- Download the latest source code
-- Ask for your Cloudflare credentials
-- Deploy to Cloudflare Workers
-- Give you the worker URL
+**✨ Smart Features:**
+- ✅ **Automatic token validation** - Verifies your API token instantly
+- 🔍 **Auto-detects Account ID** - No need to copy/paste from dashboard
+- 🔐 **Permission checking** - Confirms Workers and KV access
+- 💡 **Interactive troubleshooting** - Guides you through any issues
+- 📋 **Pre-configured setup** - Shows exact token creation steps
+
+**Alternative (Basic Script):**
+```bash
+# Download basic script (manual credential input)
+curl -O https://raw.githubusercontent.com/abersager/spotify-proxy/main/deploy-standalone.js
+node deploy-standalone.js
+```
 
 ### ⚡ Method 3: Direct Cloudflare Deploy
 

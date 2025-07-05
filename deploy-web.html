@@ -228,43 +228,64 @@
 
         <!-- Cloudflare Deploy Method -->
         <div id="cloudflare-method" class="method-content">
-            <div class="step">
-                <div class="step-title">
-                    <span class="step-number">1</span>
-                    Get Cloudflare Credentials
-                </div>
-                <p>You'll need your Cloudflare API token and Account ID. Click the links below to get them:</p>
-                <div style="text-align: center; margin: 20px 0;">
-                    <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" class="link-button">
-                        Get API Token
-                    </a>
-                    <a href="https://dash.cloudflare.com" target="_blank" class="link-button">
-                        Get Account ID
-                    </a>
-                </div>
-                <div class="highlight">
-                    <strong>📋 Quick Guide:</strong><br>
-                    <strong>API Token:</strong> Create Token → Custom Token → Add "Cloudflare Workers:Edit" permission<br>
-                    <strong>Account ID:</strong> Copy from the right sidebar of your Cloudflare dashboard
-                </div>
+                    <div class="step">
+            <div class="step-title">
+                <span class="step-number">1</span>
+                Get & Validate Cloudflare Credentials
             </div>
+            <p>Let's set up your Cloudflare credentials with automatic validation:</p>
+
+            <div class="form-group">
+                <label for="api-token">Cloudflare API Token:</label>
+                <input type="password" id="api-token" placeholder="Enter your API token..." oninput="validateToken()">
+                <div id="token-status" class="alert" style="display: none; margin-top: 10px;"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="account-id">Account ID:</label>
+                <input type="text" id="account-id" placeholder="Will be auto-detected..." readonly>
+                <div id="account-status" class="alert" style="display: none; margin-top: 10px;"></div>
+            </div>
+
+            <div style="text-align: center; margin: 20px 0;">
+                <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" class="link-button">
+                    Create API Token
+                </a>
+                <button type="button" class="btn btn-secondary" onclick="showTokenHelp()">
+                    💡 Token Setup Help
+                </button>
+            </div>
+
+            <div id="token-help" class="highlight" style="display: none;">
+                <strong>📋 Exact Setup Instructions:</strong><br>
+                1. Click "Create Token" → "Get started" (Custom token)<br>
+                2. <strong>Token name:</strong> <code>spotify-proxy</code><br>
+                3. <strong>Permissions:</strong><br>
+                   • Account → Cloudflare Workers → Edit<br>
+                   • Account → Workers KV Storage → Edit<br>
+                4. <strong>Account Resources:</strong> Include All accounts<br>
+                5. Click "Continue to summary" → "Create Token"<br>
+                6. Copy the token and paste it above ☝️
+            </div>
+        </div>
 
             <div class="step">
                 <div class="step-title">
                     <span class="step-number">2</span>
                     Deploy to Cloudflare
                 </div>
-                <p>Click the button below to deploy directly to Cloudflare Workers:</p>
+                <p>Once your credentials are validated, deploy directly to Cloudflare Workers:</p>
                 <div style="text-align: center; margin: 30px 0;">
-                    <a href="https://deploy.workers.cloudflare.com/?url=https://github.com/abersager/spotify-proxy" target="_blank" class="btn">
+                    <button type="button" class="btn deploy-button" onclick="window.open(generateDeployURL(), '_blank')" disabled>
                         🚀 Deploy to Cloudflare Workers
-                    </a>
+                    </button>
                 </div>
                 <div class="alert alert-info">
-                    <strong>What happens next:</strong><br>
-                    1. Cloudflare will ask for your API token and Account ID<br>
-                    2. Your worker will be deployed automatically<br>
-                    3. You'll get a worker URL to complete setup
+                    <strong>Smart deployment process:</strong><br>
+                    1. ✅ Your credentials are already validated<br>
+                    2. 🚀 One-click deployment to Cloudflare<br>
+                    3. 📱 Automatic worker URL generation<br>
+                    4. 🎵 Ready to use your Spotify proxy!
                 </div>
             </div>
 
@@ -397,7 +418,12 @@ npx wrangler deploy
         </div>
     </div>
 
-    <script>
+        <script>
+        let validationTimeout = null;
+        let currentToken = '';
+        let currentAccountId = '';
+        let validatedCredentials = false;
+
         function selectMethod(method) {
             // Hide all method contents
             document.querySelectorAll('.method-content').forEach(el => {
@@ -416,6 +442,181 @@ npx wrangler deploy
             event.target.closest('.method-card').classList.add('active');
         }
 
+        function showTokenHelp() {
+            const helpDiv = document.getElementById('token-help');
+            const isVisible = helpDiv.style.display !== 'none';
+            helpDiv.style.display = isVisible ? 'none' : 'block';
+        }
+
+        async function makeAPIRequest(url, token, method = 'GET', data = null) {
+            const options = {
+                method: method,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            if (data && method !== 'GET') {
+                options.body = JSON.stringify(data);
+            }
+
+            const response = await fetch(`https://api.cloudflare.com/client/v4${url}`, options);
+            const result = await response.json();
+
+            if (!result.success) {
+                throw new Error(result.errors?.[0]?.message || 'API request failed');
+            }
+
+            return result;
+        }
+
+        async function validateTokenAPI(token) {
+            try {
+                const result = await makeAPIRequest('/user/tokens/verify', token);
+                return result.result;
+            } catch (error) {
+                throw new Error(`Token validation failed: ${error.message}`);
+            }
+        }
+
+        async function getAccountInfo(token) {
+            try {
+                const result = await makeAPIRequest('/accounts', token);
+                if (result.result && result.result.length > 0) {
+                    return result.result[0];
+                }
+                throw new Error('No accounts found');
+            } catch (error) {
+                throw new Error(`Account fetch failed: ${error.message}`);
+            }
+        }
+
+        async function checkPermissions(token, accountId) {
+            const permissions = { workers: false, kv: false };
+
+            try {
+                await makeAPIRequest(`/accounts/${accountId}/workers/scripts`, token);
+                permissions.workers = true;
+            } catch (error) {
+                // Workers permission check failed
+            }
+
+            try {
+                await makeAPIRequest(`/accounts/${accountId}/storage/kv/namespaces`, token);
+                permissions.kv = true;
+            } catch (error) {
+                // KV permission check failed
+            }
+
+            return permissions;
+        }
+
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.className = `alert alert-${type}`;
+            element.innerHTML = message;
+            element.style.display = 'block';
+        }
+
+        function hideStatus(elementId) {
+            document.getElementById(elementId).style.display = 'none';
+        }
+
+        async function validateToken() {
+            const token = document.getElementById('api-token').value.trim();
+
+            // Clear previous timeout
+            if (validationTimeout) {
+                clearTimeout(validationTimeout);
+            }
+
+            // Hide previous status
+            hideStatus('token-status');
+            hideStatus('account-status');
+
+            if (!token) {
+                document.getElementById('account-id').value = '';
+                validatedCredentials = false;
+                updateDeployButton();
+                return;
+            }
+
+            // Debounce validation
+            validationTimeout = setTimeout(async () => {
+                try {
+                    showStatus('token-status', '🔍 Validating token...', 'info');
+
+                    // Validate token
+                    const tokenInfo = await validateTokenAPI(token);
+                    showStatus('token-status', '✅ Token is valid!', 'success');
+
+                    // Get account info
+                    showStatus('account-status', '🔍 Fetching account info...', 'info');
+                    const account = await getAccountInfo(token);
+
+                    document.getElementById('account-id').value = account.id;
+                    showStatus('account-status', `✅ Account: ${account.name}`, 'success');
+
+                    // Check permissions
+                    showStatus('account-status', '🔍 Checking permissions...', 'info');
+                    const permissions = await checkPermissions(token, account.id);
+
+                    if (permissions.workers && permissions.kv) {
+                        showStatus('account-status', '✅ All permissions confirmed!', 'success');
+                        currentToken = token;
+                        currentAccountId = account.id;
+                        validatedCredentials = true;
+                        updateDeployButton();
+                    } else {
+                        const missing = [];
+                        if (!permissions.workers) missing.push('Workers Scripts');
+                        if (!permissions.kv) missing.push('Workers KV Storage');
+
+                        showStatus('account-status',
+                            `❌ Missing permissions: ${missing.join(', ')}<br>` +
+                            '<button type="button" onclick="showTokenHelp()" style="background: #ffc107; border: none; padding: 5px 10px; border-radius: 3px; margin-top: 5px;">Show Setup Help</button>',
+                            'error'
+                        );
+                        validatedCredentials = false;
+                        updateDeployButton();
+                    }
+
+                } catch (error) {
+                    showStatus('token-status', `❌ ${error.message}`, 'error');
+                    document.getElementById('account-id').value = '';
+                    validatedCredentials = false;
+                    updateDeployButton();
+                }
+            }, 1000); // 1 second delay
+        }
+
+        function updateDeployButton() {
+            const deployButtons = document.querySelectorAll('.deploy-button');
+            deployButtons.forEach(button => {
+                if (validatedCredentials) {
+                    button.disabled = false;
+                    button.textContent = button.textContent.replace('🚀', '✅');
+                } else {
+                    button.disabled = true;
+                    button.textContent = button.textContent.replace('✅', '🚀');
+                }
+            });
+        }
+
+        function generateDeployURL() {
+            if (!validatedCredentials) {
+                alert('Please validate your Cloudflare credentials first!');
+                return '#';
+            }
+
+            // Generate the Cloudflare deploy URL with pre-filled parameters
+            const deployURL = new URL('https://deploy.workers.cloudflare.com/');
+            deployURL.searchParams.set('url', 'https://github.com/abersager/spotify-proxy');
+
+            return deployURL.toString();
+        }
+
         // Add click handlers for download links
         document.addEventListener('DOMContentLoaded', function() {
             // Track download clicks
@@ -424,6 +625,9 @@ npx wrangler deploy
                     console.log('Downloaded:', this.getAttribute('download'));
                 });
             });
+
+            // Initialize deploy button state
+            updateDeployButton();
         });
     </script>
 </body>
