@@ -12,11 +12,6 @@ export interface Env {
   ENVIRONMENT: string;
 }
 
-interface AuthCredentials {
-  username: string;
-  passwordHash: string;
-}
-
 // CORS headers for all responses
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -39,25 +34,6 @@ export default {
     }
 
     try {
-      // Check if auth is configured
-      const authConfigured = await isAuthConfigured(env);
-
-      // Auth setup endpoint - always accessible
-      if (pathname === "/auth-setup") {
-        return handleAuthSetup(request, env);
-      }
-
-      // If auth not configured, redirect to auth setup (except for health check)
-      if (!authConfigured && pathname !== "/health") {
-        return redirectToAuthSetup();
-      }
-
-      // If auth is configured, require authentication for all endpoints except health
-      if (authConfigured && pathname !== "/health") {
-        const authResult = await requireAuth(request, env);
-        if (authResult) return authResult; // Return 401 if auth failed
-      }
-
       // Route handling
       switch (pathname) {
         case "/":
@@ -94,7 +70,6 @@ export default {
  * Handle root endpoint - redirect to setup
  */
 async function handleRoot(request: Request, env: Env): Promise<Response> {
-  const authConfigured = await isAuthConfigured(env);
   const storedCredentials = await getStoredCredentials(env);
   const storedTokens = await getStoredTokens(env);
 
@@ -102,11 +77,7 @@ async function handleRoot(request: Request, env: Env): Promise<Response> {
   let nextAction = "/credentials";
   let nextActionText = "Setup Credentials";
 
-  if (!authConfigured) {
-    setupStatus = "auth_required";
-    nextAction = "/auth-setup";
-    nextActionText = "Setup Authentication";
-  } else if (storedCredentials) {
+  if (storedCredentials) {
     if (storedTokens) {
       setupStatus = "complete";
       nextAction = "/now-playing";
@@ -203,13 +174,6 @@ async function handleRoot(request: Request, env: Env): Promise<Response> {
           <div class="status partial">
             ⚠️ <strong>Credentials Set, OAuth Pending</strong><br>
             Connect your Spotify account to start using the proxy.
-          </div>
-        `
-            : setupStatus === "auth_required"
-            ? `
-          <div class="status pending">
-            🔒 <strong>Authentication Required</strong><br>
-            Set up username and password to secure your Spotify proxy.
           </div>
         `
             : `
@@ -581,7 +545,6 @@ async function handleRecent(request: Request, env: Env): Promise<Response> {
  * Handle health check endpoint
  */
 async function handleHealth(request: Request, env: Env): Promise<Response> {
-  const authConfigured = await isAuthConfigured(env);
   const credentials = await getStoredCredentials(env);
   const tokens = await getStoredTokens(env);
   const hasValidCredentials = credentials !== null;
@@ -591,20 +554,16 @@ async function handleHealth(request: Request, env: Env): Promise<Response> {
     status: "healthy",
     timestamp: new Date().toISOString(),
     environment: env.ENVIRONMENT || "unknown",
-    auth_configured: authConfigured,
     credentials_configured: hasValidCredentials,
     oauth_configured: hasValidTokens,
-    setup_complete: authConfigured && hasValidCredentials && hasValidTokens,
-    next_step: !authConfigured
-      ? "Set up authentication at /auth-setup"
-      : !hasValidCredentials
+    setup_complete: hasValidCredentials && hasValidTokens,
+    next_step: !hasValidCredentials
       ? "Configure Spotify credentials at /credentials"
       : !hasValidTokens
       ? "Complete OAuth setup at /setup"
       : "Ready to use API endpoints",
     endpoints: {
       home: "/",
-      auth_setup: "/auth-setup",
       credentials: "/credentials",
       setup: "/setup",
       callback: "/callback",
@@ -922,292 +881,6 @@ async function getCredentialsHTML(
         </div>
 
         <p><a href="/">&larr; Back to Home</a></p>
-      </div>
-    </body>
-    </html>
-  `;
-}
-
-/**
- * Authentication helper functions
- */
-
-async function isAuthConfigured(env: Env): Promise<boolean> {
-  const auth = await env.SPOTIFY_DATA.get("auth_credentials");
-  return auth !== null;
-}
-
-async function getAuthCredentials(env: Env): Promise<AuthCredentials | null> {
-  const auth = await env.SPOTIFY_DATA.get("auth_credentials");
-  return auth ? JSON.parse(auth) : null;
-}
-
-async function requireAuth(
-  request: Request,
-  env: Env
-): Promise<Response | null> {
-  const authHeader = request.headers.get("Authorization");
-
-  if (!authHeader || !authHeader.startsWith("Basic ")) {
-    return new Response("Unauthorized", {
-      status: 401,
-      headers: {
-        ...corsHeaders,
-        "WWW-Authenticate": 'Basic realm="Spotify Proxy"',
-      },
-    });
-  }
-
-  const credentials = atob(authHeader.slice(6));
-  const [username, password] = credentials.split(":");
-
-  const storedAuth = await getAuthCredentials(env);
-  if (!storedAuth) {
-    return new Response("Authentication not configured", {
-      status: 500,
-      headers: corsHeaders,
-    });
-  }
-
-  const isValid =
-    (await verifyPassword(password, storedAuth.passwordHash)) &&
-    username === storedAuth.username;
-
-  if (!isValid) {
-    return new Response("Invalid credentials", {
-      status: 401,
-      headers: {
-        ...corsHeaders,
-        "WWW-Authenticate": 'Basic realm="Spotify Proxy"',
-      },
-    });
-  }
-
-  return null; // Auth successful
-}
-
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hash = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(hash))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
-async function verifyPassword(
-  password: string,
-  hash: string
-): Promise<boolean> {
-  const passwordHash = await hashPassword(password);
-  return passwordHash === hash;
-}
-
-function redirectToAuthSetup(): Response {
-  return new Response(null, {
-    status: 302,
-    headers: {
-      ...corsHeaders,
-      Location: "/auth-setup",
-    },
-  });
-}
-
-async function handleAuthSetup(request: Request, env: Env): Promise<Response> {
-  if (request.method === "POST") {
-    try {
-      const formData = await request.formData();
-      const username = formData.get("username") as string;
-      const password = formData.get("password") as string;
-      const confirmPassword = formData.get("confirm_password") as string;
-
-      if (!username || !password || !confirmPassword) {
-        return new Response(await getAuthSetupHTML("All fields are required"), {
-          headers: { ...corsHeaders, "Content-Type": "text/html" },
-        });
-      }
-
-      if (password !== confirmPassword) {
-        return new Response(await getAuthSetupHTML("Passwords do not match"), {
-          headers: { ...corsHeaders, "Content-Type": "text/html" },
-        });
-      }
-
-      if (password.length < 8) {
-        return new Response(
-          await getAuthSetupHTML("Password must be at least 8 characters"),
-          {
-            headers: { ...corsHeaders, "Content-Type": "text/html" },
-          }
-        );
-      }
-
-      const passwordHash = await hashPassword(password);
-      const authCredentials: AuthCredentials = {
-        username,
-        passwordHash,
-      };
-
-      await env.SPOTIFY_DATA.put(
-        "auth_credentials",
-        JSON.stringify(authCredentials)
-      );
-
-      return new Response(null, {
-        status: 302,
-        headers: {
-          ...corsHeaders,
-          Location: "/",
-        },
-      });
-    } catch (error) {
-      return new Response(await getAuthSetupHTML("Error saving credentials"), {
-        headers: { ...corsHeaders, "Content-Type": "text/html" },
-      });
-    }
-  }
-
-  return new Response(await getAuthSetupHTML(), {
-    headers: { ...corsHeaders, "Content-Type": "text/html" },
-  });
-}
-
-async function getAuthSetupHTML(errorMessage?: string): Promise<string> {
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Spotify Proxy - Authentication Setup</title>
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          max-width: 600px;
-          margin: 50px auto;
-          padding: 20px;
-          background-color: #f5f5f5;
-        }
-        .container {
-          background: white;
-          padding: 30px;
-          border-radius: 10px;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .button {
-          display: inline-block;
-          padding: 12px 24px;
-          background: #1db954;
-          color: white;
-          text-decoration: none;
-          border-radius: 25px;
-          margin: 10px 0;
-          border: none;
-          cursor: pointer;
-          font-size: 16px;
-          width: 100%;
-        }
-        .button:hover { background: #1ed760; }
-        .form-group {
-          margin: 20px 0;
-        }
-        .form-group label {
-          display: block;
-          margin-bottom: 5px;
-          font-weight: bold;
-        }
-        .form-group input {
-          width: 100%;
-          padding: 10px;
-          border: 2px solid #ddd;
-          border-radius: 5px;
-          font-size: 14px;
-          box-sizing: border-box;
-        }
-        .form-group input:focus {
-          border-color: #1db954;
-          outline: none;
-        }
-        .error {
-          background: #ffebee;
-          color: #c62828;
-          padding: 15px;
-          border-radius: 5px;
-          margin: 20px 0;
-        }
-        .warning {
-          background: #fff3e0;
-          color: #f57c00;
-          padding: 15px;
-          border-radius: 5px;
-          margin: 20px 0;
-        }
-        .info {
-          background: #e3f2fd;
-          padding: 15px;
-          border-radius: 5px;
-          margin: 20px 0;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <h1>🔒 Setup Authentication</h1>
-
-        <div class="warning">
-          <h3>⚠️ Security Notice</h3>
-          <p>Your Spotify proxy contains personal data and should be protected. Set up a username and password to secure access to your worker.</p>
-        </div>
-
-        ${errorMessage ? `<div class="error">❌ ${errorMessage}</div>` : ""}
-
-        <form method="POST">
-          <div class="form-group">
-            <label for="username">Username:</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              placeholder="Choose a username"
-              required
-              minlength="3"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="password">Password:</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              placeholder="Choose a strong password (min 8 characters)"
-              required
-              minlength="8"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="confirm_password">Confirm Password:</label>
-            <input
-              type="password"
-              id="confirm_password"
-              name="confirm_password"
-              placeholder="Confirm your password"
-              required
-              minlength="8"
-            />
-          </div>
-
-          <button type="submit" class="button">🔒 Setup Authentication</button>
-        </form>
-
-        <div class="info">
-          <h3>📝 Next Steps</h3>
-          <p>After setting up authentication:</p>
-          <ol>
-            <li>You'll be prompted to enter these credentials when accessing your proxy</li>
-            <li>You can then set up your Spotify app credentials</li>
-            <li>Complete OAuth setup to start using your proxy</li>
-          </ol>
-        </div>
       </div>
     </body>
     </html>

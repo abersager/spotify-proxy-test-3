@@ -50,7 +50,6 @@ You'll need these during deployment:
 
 - **One-click deployment** - from your forked repository
 - **No ongoing cost** (free tier is sufficient)
-- **🔒 Built-in authentication** - secure your proxy with username/password
 - **Web-based setup** - no CLI required
 - **Secure OAuth flow** for Spotify authentication
 - **KV storage** for credentials and tokens
@@ -61,92 +60,22 @@ You'll need these during deployment:
 
 After deployment:
 
-### 1. **🔒 Set Up Authentication**
-- Visit your deployed worker URL
-- You'll be redirected to `/auth-setup`
-- Choose a username and strong password
-- This secures your personal Spotify data from public access
-
-### 2. **Create Spotify App**
+### 1. **Create Spotify App**
 - Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
 - Create a new app
 - Note your **Client ID** and **Client Secret**
 - Add callback URL: `https://your-worker-name.your-subdomain.workers.dev/callback`
 
-### 3. **Complete Web Setup**
+### 2. **Complete Web Setup**
+- Visit your deployed worker URL
 - Enter your Spotify credentials in the web form
 - Click "Connect Spotify Account" to authorize
 - Test your endpoints!
 
-### 4. **Start Using Your Proxy**
+### 3. **Start Using Your Proxy**
 - `/now-playing` - Current track
 - `/recent` - Recently played tracks
 - `/health` - Status check
-
-**🔐 Authentication Required**: All endpoints (except `/health`) require your username/password via Basic Auth.
-
-## 🔄 Keeping Your Fork Updated
-
-Your forked repository can automatically stay in sync with upstream improvements and bug fixes.
-
-### 🤖 Automatic Sync (Recommended)
-
-Your repository includes a GitHub Action that automatically syncs with the upstream repository:
-
-- **Runs daily** at 2 AM UTC
-- **Creates a Pull Request** when updates are available
-- **Handles conflicts** gracefully with manual fallback
-- **Manual trigger** available from the Actions tab
-
-The sync action is enabled by default. When updates are available, you'll get a PR like this:
-
-> 🔄 **Sync with upstream repository**
->
-> This PR automatically syncs your repository with the latest changes...
-
-Simply review and merge the PR to get the latest updates!
-
-### 🔧 Manual Sync
-
-If you prefer manual control or need to resolve conflicts:
-
-<details>
-<summary>Click to see manual sync instructions</summary>
-
-```bash
-# Add upstream remote (one time setup)
-git remote add upstream https://github.com/abersager/spotify-proxy.git
-
-# Fetch latest changes
-git fetch upstream
-
-# Merge upstream changes
-git checkout main
-git merge upstream/main
-
-# Push to your fork
-git push origin main
-```
-
-If there are conflicts, resolve them manually:
-```bash
-# After git merge upstream/main shows conflicts
-git status                    # See conflicted files
-# Edit files to resolve conflicts
-git add .                     # Stage resolved files
-git commit -m "Resolve merge conflicts"
-git push origin main
-```
-
-</details>
-
-### 🔀 Using GitHub's Sync Fork Button
-
-GitHub also provides a "Sync fork" button on your repository page:
-
-1. Go to your forked repository on GitHub
-2. Click the "Sync fork" button (if behind upstream)
-3. Click "Update branch" to sync
 
 ## 🔧 Development
 
