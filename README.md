@@ -2,19 +2,58 @@
 
 A personal Spotify API proxy that you can deploy to your own Cloudflare Workers account. This allows you to poll your Spotify listening data and expose simple endpoints like `/now-playing` without having to worry about CORS issues or managing your own server.
 
-## 🚀 One-Click Deploy
+## 🚀 Deploy Your Spotify Proxy
 
-Deploy your own Spotify proxy in under 5 minutes with zero technical knowledge required!
+**🎉 No GitHub Account Required!** Choose your preferred deployment method:
 
-### 🔥 Quick Start (Recommended)
+### 🌐 Method 1: Web Deploy (Easiest)
 
-**Step 1: Get this template**
+**Perfect for non-technical users - no GitHub account needed!**
+
+[![Open Web Deploy](https://img.shields.io/badge/Open%20Web%20Deploy-1db954?style=for-the-badge&logo=cloudflare)](./deploy-web.html)
+
+Simply open [`deploy-web.html`](./deploy-web.html) in your browser and follow the step-by-step guide. Choose from:
+- **🚀 Cloudflare Deploy Button** - One-click deployment
+- **💻 Download Script** - Automated deployment script
+- **⚙️ Manual Setup** - Step-by-step instructions
+
+### 💻 Method 2: Download & Run Script
+
+**For users comfortable with command line:**
+
+```bash
+# Download the deployment script
+curl -O https://raw.githubusercontent.com/abersager/spotify-proxy/main/deploy-standalone.js
+
+# Run the script (requires Node.js)
+node deploy-standalone.js
+```
+
+The script will:
+- Download the latest source code
+- Ask for your Cloudflare credentials
+- Deploy to Cloudflare Workers
+- Give you the worker URL
+
+### ⚡ Method 3: Direct Cloudflare Deploy
+
+**One-click deployment via Cloudflare's platform:**
+
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/abersager/spotify-proxy)
+
+### 🔧 Method 4: GitHub Template (For Developers)
+
+**If you want to customize or contribute:**
+
 [![Use this template](https://img.shields.io/badge/Use%20this%20template-2ea44f?style=for-the-badge&logo=github)](https://github.com/abersager/spotify-proxy/generate)
 
-**Step 2: Get your Cloudflare credentials** (takes 2 minutes)
-
 <details>
-<summary>📋 Click here for detailed Cloudflare setup instructions</summary>
+<summary>📋 Click here for GitHub template deployment instructions</summary>
+
+**Step 1: Get this template**
+Click the "Use this template" button above to create your own repository.
+
+**Step 2: Get your Cloudflare credentials** (takes 2 minutes)
 
 #### 🔑 Getting Your Cloudflare API Token
 
@@ -34,8 +73,6 @@ Deploy your own Spotify proxy in under 5 minutes with zero technical knowledge r
 
 1. **Go to Cloudflare Dashboard**: Visit [https://dash.cloudflare.com](https://dash.cloudflare.com)
 2. **Copy Account ID**: Look at the right sidebar → copy the "Account ID"
-
-</details>
 
 **Step 3: Deploy with one click**
 
@@ -63,71 +100,17 @@ Or manually:
 - Visit your worker URL (shown in the workflow output)
 - Follow the web setup to connect your Spotify account
 
-### ⚡ Alternative: Cloudflare Deploy Button
-
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/abersager/spotify-proxy)
-
-### 🔧 Manual Setup
-
-If you prefer manual control:
-
-<details>
-<summary>Click to expand manual setup instructions</summary>
+</details>
 
 ## ✨ Features
 
-- **One-click deploy** via Cloudflare Workers
+- **Multiple deployment options** - no GitHub account required
 - **No ongoing cost** (free tier is sufficient)
 - **Web-based setup** - no CLI required
 - **Secure OAuth flow** for Spotify authentication
 - **KV storage** for credentials and tokens
 - **Simple API endpoints** for current track, recent tracks, and more
 - **Beautiful setup UI** for easy configuration
-
-## 📦 Manual Setup
-
-### 1. Prerequisites
-
-- A Cloudflare account (free tier works fine)
-- A Spotify Developer account
-- Node.js installed locally
-
-### 2. Set up Spotify App
-
-1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
-2. Create a new app
-3. Note down your `Client ID` and `Client Secret`
-4. Add redirect URI: `https://your-worker-name.your-subdomain.workers.dev/callback`
-
-### 3. Deploy to Cloudflare Workers
-
-```bash
-# Clone this repository
-git clone <this-repo>
-cd spotify-proxy
-
-# Install dependencies
-npm install
-
-# Login to Cloudflare (if not already logged in)
-npx wrangler login
-
-# Set your Spotify credentials as secrets
-npx wrangler secret put SPOTIFY_CLIENT_ID
-npx wrangler secret put SPOTIFY_CLIENT_SECRET
-
-# Deploy to Cloudflare Workers
-npm run deploy
-```
-
-### 4. Configure OAuth
-
-1. Visit your deployed worker URL
-2. Click "Setup OAuth"
-3. Follow the authorization flow
-4. Test the endpoints!
-
-</details>
 
 ## 🎯 Setup Process (All Methods)
 

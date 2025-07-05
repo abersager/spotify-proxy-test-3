@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 Spotify Proxy - Web Deploy</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1db954 0%, #1ed760 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin: 20px 0;
+        }
+        h1 {
+            color: #1db954;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+        .step {
+            margin: 30px 0;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #1db954;
+        }
+        .step-number {
+            display: inline-block;
+            background: #1db954;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        .step-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #1db954;
+            margin-bottom: 10px;
+        }
+        .form-group {
+            margin: 20px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #1db954;
+        }
+        .btn {
+            background: #1db954;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+            margin: 10px 0;
+        }
+        .btn:hover {
+            background: #1ed760;
+        }
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .alert-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .alert-info {
+            background: #cce7ff;
+            border: 1px solid #b3d9ff;
+            color: #004085;
+        }
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #1db954, #1ed760);
+            width: 0%;
+            transition: width 0.5s;
+        }
+        .code-block {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            border: 1px solid #e9ecef;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        .hidden {
+            display: none;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ffeaa7;
+            margin: 15px 0;
+        }
+        .link-button {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        .link-button:hover {
+            background: #0056b3;
+        }
+        .method-selector {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .method-card {
+            flex: 1;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .method-card:hover {
+            border-color: #1db954;
+            background: #f8fff8;
+        }
+        .method-card.active {
+            border-color: #1db954;
+            background: #e8f5e8;
+        }
+        .method-card h3 {
+            margin: 0 0 10px 0;
+            color: #1db954;
+        }
+        .method-card p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Spotify Proxy</h1>
+        <p class="subtitle">Deploy your personal Spotify API proxy without GitHub</p>
+
+        <div class="method-selector">
+            <div class="method-card active" onclick="selectMethod('cloudflare')">
+                <h3>🚀 Cloudflare Deploy</h3>
+                <p>One-click deployment via Cloudflare's platform</p>
+            </div>
+            <div class="method-card" onclick="selectMethod('script')">
+                <h3>💻 Download Script</h3>
+                <p>Download and run deployment script locally</p>
+            </div>
+            <div class="method-card" onclick="selectMethod('manual')">
+                <h3>⚙️ Manual Setup</h3>
+                <p>Step-by-step manual deployment guide</p>
+            </div>
+        </div>
+
+        <!-- Cloudflare Deploy Method -->
+        <div id="cloudflare-method" class="method-content">
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">1</span>
+                    Get Cloudflare Credentials
+                </div>
+                <p>You'll need your Cloudflare API token and Account ID. Click the links below to get them:</p>
+                <div style="text-align: center; margin: 20px 0;">
+                    <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" class="link-button">
+                        Get API Token
+                    </a>
+                    <a href="https://dash.cloudflare.com" target="_blank" class="link-button">
+                        Get Account ID
+                    </a>
+                </div>
+                <div class="highlight">
+                    <strong>📋 Quick Guide:</strong><br>
+                    <strong>API Token:</strong> Create Token → Custom Token → Add "Cloudflare Workers:Edit" permission<br>
+                    <strong>Account ID:</strong> Copy from the right sidebar of your Cloudflare dashboard
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">2</span>
+                    Deploy to Cloudflare
+                </div>
+                <p>Click the button below to deploy directly to Cloudflare Workers:</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="https://deploy.workers.cloudflare.com/?url=https://github.com/abersager/spotify-proxy" target="_blank" class="btn">
+                        🚀 Deploy to Cloudflare Workers
+                    </a>
+                </div>
+                <div class="alert alert-info">
+                    <strong>What happens next:</strong><br>
+                    1. Cloudflare will ask for your API token and Account ID<br>
+                    2. Your worker will be deployed automatically<br>
+                    3. You'll get a worker URL to complete setup
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">3</span>
+                    Complete Setup
+                </div>
+                <p>After deployment:</p>
+                <ol>
+                    <li>Visit your worker URL</li>
+                    <li>Enter your Spotify app credentials</li>
+                    <li>Complete OAuth authorization</li>
+                    <li>Start using your proxy!</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Script Download Method -->
+        <div id="script-method" class="method-content hidden">
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">1</span>
+                    Download Deployment Script
+                </div>
+                <p>Download the standalone deployment script that will handle everything for you:</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="https://raw.githubusercontent.com/abersager/spotify-proxy/main/deploy-standalone.js" download="deploy-standalone.js" class="btn">
+                        💾 Download deploy-standalone.js
+                    </a>
+                </div>
+                <div class="highlight">
+                    <strong>Requirements:</strong><br>
+                    • Node.js 18+ installed on your computer<br>
+                    • Cloudflare account with API token
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">2</span>
+                    Run the Script
+                </div>
+                <p>Open your terminal/command prompt and run:</p>
+                <div class="code-block">
+                    node deploy-standalone.js
+                </div>
+                <p>The script will:</p>
+                <ul>
+                    <li>Download the latest source code</li>
+                    <li>Ask for your Cloudflare credentials</li>
+                    <li>Deploy to Cloudflare Workers</li>
+                    <li>Give you the worker URL</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">3</span>
+                    Complete Setup
+                </div>
+                <p>Visit your worker URL to complete the Spotify setup process.</p>
+            </div>
+        </div>
+
+        <!-- Manual Setup Method -->
+        <div id="manual-method" class="method-content hidden">
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">1</span>
+                    Download Source Code
+                </div>
+                <p>Download the latest source code:</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="https://github.com/abersager/spotify-proxy/archive/refs/heads/main.zip" class="btn">
+                        📥 Download Source Code
+                    </a>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">2</span>
+                    Extract and Install
+                </div>
+                <p>Extract the downloaded zip file and run:</p>
+                <div class="code-block">
+npm install
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">3</span>
+                    Configure and Deploy
+                </div>
+                <p>Set your Cloudflare credentials and deploy:</p>
+                <div class="code-block">
+export CLOUDFLARE_API_TOKEN="your-api-token"
+export CLOUDFLARE_ACCOUNT_ID="your-account-id"
+npx wrangler deploy
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">4</span>
+                    Complete Setup
+                </div>
+                <p>Visit your worker URL to complete the Spotify setup process.</p>
+            </div>
+        </div>
+
+        <div class="alert alert-success">
+            <strong>🎉 No GitHub Account Required!</strong><br>
+            All these methods work without needing to create a GitHub account or fork any repositories.
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">?</span>
+                Need Help?
+            </div>
+            <p>If you run into any issues:</p>
+            <ul>
+                <li>Check that your Cloudflare credentials are correct</li>
+                <li>Ensure your worker name is unique</li>
+                <li>Visit the <a href="https://github.com/abersager/spotify-proxy" target="_blank">GitHub repository</a> for more help</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function selectMethod(method) {
+            // Hide all method contents
+            document.querySelectorAll('.method-content').forEach(el => {
+                el.classList.add('hidden');
+            });
+
+            // Remove active class from all cards
+            document.querySelectorAll('.method-card').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Show selected method
+            document.getElementById(method + '-method').classList.remove('hidden');
+
+            // Add active class to selected card
+            event.target.closest('.method-card').classList.add('active');
+        }
+
+        // Add click handlers for download links
+        document.addEventListener('DOMContentLoaded', function() {
+            // Track download clicks
+            document.querySelectorAll('a[download]').forEach(link => {
+                link.addEventListener('click', function() {
+                    console.log('Downloaded:', this.getAttribute('download'));
+                });
+            });
+        });
+    </script>
+</body>
+</html>

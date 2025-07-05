@@ -1,13 +1,14 @@
 {
   "name": "Spotify Proxy",
-  "description": "Personal Spotify API proxy deployed via Cloudflare Workers",
+  "description": "Personal Spotify API proxy for accessing your Spotify data via simple endpoints like /now-playing and /recent",
   "repository": "https://github.com/abersager/spotify-proxy",
   "logo": "https://raw.githubusercontent.com/abersager/spotify-proxy/main/.github/logo.svg",
   "success_url": "/",
   "env": {
     "ENVIRONMENT": {
       "description": "Deployment environment",
-      "value": "production"
+      "value": "production",
+      "required": false
     }
   },
   "formation": {
@@ -17,5 +18,10 @@
   },
   "addons": [],
   "buildpacks": [],
-  "stack": "cloudflare-workers"
+  "stack": "cloudflare-workers",
+  "keywords": ["spotify", "api", "proxy", "music", "cloudflare", "workers"],
+  "website": "https://github.com/abersager/spotify-proxy",
+  "scripts": {
+    "postdeploy": "echo 'Deployment complete! Visit your worker URL to complete setup with your Spotify credentials.'"
+  }
 }
