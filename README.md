@@ -2,16 +2,41 @@
 
 A personal Spotify API proxy that you can deploy to your own Cloudflare Workers account. This allows you to poll your Spotify listening data and expose simple endpoints like `/now-playing` without having to worry about CORS issues or managing your own server.
 
-## 🚀 Features
+## 🚀 One-Click Deploy
+
+Deploy your own Spotify proxy in under 2 minutes:
+
+### 🔥 Method 1: GitHub Template (Recommended)
+
+[![Use this template](https://img.shields.io/badge/Use%20this%20template-2ea44f?style=for-the-badge&logo=github)](https://github.com/your-username/spotify-proxy/generate)
+
+1. **Click "Use this template"** to create your own repository
+2. **Go to Actions tab** in your new repository
+3. **Run "Manual Deploy"** workflow with your Cloudflare credentials
+4. **Visit your worker URL** to complete setup!
+
+### ⚡ Method 2: Direct Fork & Deploy
+
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/your-username/spotify-proxy)
+
+### 🔧 Method 3: Manual Setup
+
+If you prefer manual control:
+
+<details>
+<summary>Click to expand manual setup instructions</summary>
+
+## ✨ Features
 
 - **One-click deploy** via Cloudflare Workers
 - **No ongoing cost** (free tier is sufficient)
+- **Web-based setup** - no CLI required
 - **Secure OAuth flow** for Spotify authentication
-- **Token storage** in Cloudflare KV
+- **KV storage** for credentials and tokens
 - **Simple API endpoints** for current track, recent tracks, and more
 - **Beautiful setup UI** for easy configuration
 
-## 📦 Quick Start
+## 📦 Manual Setup
 
 ### 1. Prerequisites
 
@@ -53,6 +78,29 @@ npm run deploy
 2. Click "Setup OAuth"
 3. Follow the authorization flow
 4. Test the endpoints!
+
+</details>
+
+## 🎯 Setup Process (All Methods)
+
+After deployment, regardless of method used:
+
+### 1. **Create Spotify App**
+- Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+- Create a new app
+- Note your **Client ID** and **Client Secret**
+- Add callback URL: `https://your-worker-name.your-subdomain.workers.dev/callback`
+
+### 2. **Complete Web Setup**
+- Visit your deployed worker URL
+- Enter your Spotify credentials in the web form
+- Click "Connect Spotify Account" to authorize
+- Test your endpoints!
+
+### 3. **Start Using Your Proxy**
+- `/now-playing` - Current track
+- `/recent` - Recently played tracks
+- `/health` - Status check
 
 ## 🔧 Development
 
@@ -143,20 +191,42 @@ Feel free to submit issues and pull requests!
 
 MIT License - see LICENSE file for details
 
+## 🔑 Getting Cloudflare Credentials
+
+For deployment, you'll need:
+
+### 1. **Cloudflare Account ID**
+- Go to [Cloudflare Dashboard](https://dash.cloudflare.com)
+- Copy your Account ID from the right sidebar
+
+### 2. **API Token**
+- Go to [API Tokens](https://dash.cloudflare.com/profile/api-tokens)
+- Click "Create Token"
+- Use "Edit Cloudflare Workers" template
+- Select your account and zone permissions
+- Copy the generated token
+
 ## 🛟 Troubleshooting
 
-### Common Issues
+### Deployment Issues
 
-1. **"No valid tokens found"** - Complete the OAuth setup first via `/setup`
-2. **"Client credentials not configured"** - Make sure you've set the secrets using `wrangler secret put`
-3. **Callback URL mismatch** - Ensure your Spotify app's redirect URI matches your worker's `/callback` endpoint
-4. **CORS issues** - The worker includes proper CORS headers, but make sure you're calling the right endpoints
+1. **"Invalid API token"** - Regenerate your Cloudflare API token with proper Worker permissions
+2. **"Account ID not found"** - Double-check your Account ID from Cloudflare dashboard
+3. **"Worker name conflict"** - Choose a different worker name during deployment
+
+### Setup Issues
+
+1. **"No valid tokens found"** - Complete the credential setup at `/credentials` first
+2. **"Invalid Client ID format"** - Ensure you're using the correct Spotify Client ID (32+ characters)
+3. **"Callback URL mismatch"** - Ensure your Spotify app's redirect URI matches your worker's `/callback` endpoint
+4. **"OAuth failed"** - Check your Spotify credentials and callback URL configuration
 
 ### Getting Help
 
 - Check the `/health` endpoint for configuration status
 - Look at the browser console for any error messages
-- Verify your Spotify app settings match your worker configuration
+- Verify your Spotify app settings match your worker URL
+- Ensure your worker has the latest code deployed
 
 ---
 

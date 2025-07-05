@@ -1,0 +1,63 @@
+name: Manual Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      cloudflare_api_token:
+        description: "Cloudflare API Token"
+        required: true
+        type: string
+      cloudflare_account_id:
+        description: "Cloudflare Account ID"
+        required: true
+        type: string
+      worker_name:
+        description: "Worker Name (optional, defaults to spotify-proxy)"
+        required: false
+        default: "spotify-proxy"
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy Spotify Proxy
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update worker name
+        if: ${{ github.event.inputs.worker_name != 'spotify-proxy' }}
+        run: |
+          sed -i 's/name = "spotify-proxy"/name = "${{ github.event.inputs.worker_name }}"/' wrangler.toml
+
+      - name: Deploy to Cloudflare Workers
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ github.event.inputs.cloudflare_api_token }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ github.event.inputs.cloudflare_account_id }}
+        run: |
+          npx wrangler deploy
+
+      - name: Get deployment URL
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ github.event.inputs.cloudflare_api_token }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ github.event.inputs.cloudflare_account_id }}
+        run: |
+          WORKER_NAME="${{ github.event.inputs.worker_name }}"
+          echo "🎉 Deployment successful!"
+          echo "Your Spotify Proxy is now available at:"
+          echo "https://${WORKER_NAME}.${CLOUDFLARE_ACCOUNT_ID}.workers.dev"
+          echo ""
+          echo "Next steps:"
+          echo "1. Visit your worker URL to start setup"
+          echo "2. Enter your Spotify app credentials"
+          echo "3. Complete OAuth authorization"
+          echo "4. Start using your Spotify API proxy!"
