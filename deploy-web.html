@@ -273,14 +273,22 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="account-id">Account ID:</label>
-                    <input type="text" id="account-id" placeholder="Enter your Account ID...">
-                    <div id="account-status" class="alert alert-info" style="display: block; margin-top: 10px;">
-                        <strong>💡 How to find your Account ID:</strong><br>
+                    <label for="dashboard-url">Cloudflare Dashboard URL:</label>
+                    <input type="text" id="dashboard-url" placeholder="Paste your Cloudflare dashboard URL here..." oninput="parseAccountId()">
+                    <div id="url-status" class="alert alert-info" style="display: block; margin-top: 10px;">
+                        <strong>💡 Easy way to get your Account ID:</strong><br>
                         1. Go to <a href="https://dash.cloudflare.com/" target="_blank">Cloudflare Dashboard</a><br>
-                        2. Look at the right sidebar → "Account ID"<br>
-                        3. Copy and paste it above
+                        2. After login, copy the URL from your browser address bar<br>
+                        3. Paste it above and we'll extract your Account ID automatically<br>
+                        <br>
+                        <strong>Example URL:</strong> <code>https://dash.cloudflare.com/abc123.../home</code>
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="account-id">Account ID:</label>
+                    <input type="text" id="account-id" placeholder="Will be extracted from URL above..." readonly>
+                    <div id="account-status" class="alert" style="display: none; margin-top: 10px;"></div>
                 </div>
 
                 <div style="text-align: center; margin: 20px 0;">
@@ -494,9 +502,12 @@ npx wrangler deploy
             document.getElementById('token-form').style.display = 'none';
             // Clear any existing validation
             document.getElementById('api-token').value = '';
+            document.getElementById('dashboard-url').value = '';
             document.getElementById('account-id').value = '';
             hideStatus('token-status');
             hideStatus('account-status');
+            hideStatus('url-status');
+            document.getElementById('url-status').style.display = 'block';
             document.getElementById('token-help').style.display = 'none';
             validatedCredentials = false;
             updateDeployButton();
@@ -514,6 +525,40 @@ npx wrangler deploy
 
         function hideStatus(elementId) {
             document.getElementById(elementId).style.display = 'none';
+        }
+
+        function parseAccountId() {
+            const dashboardUrl = document.getElementById('dashboard-url').value.trim();
+
+            if (!dashboardUrl) {
+                document.getElementById('account-id').value = '';
+                hideStatus('account-status');
+                hideStatus('url-status');
+                document.getElementById('url-status').style.display = 'block';
+                checkTokenInput();
+                return;
+            }
+
+            // Extract Account ID from Cloudflare dashboard URL
+            // Pattern: https://dash.cloudflare.com/ACCOUNT_ID/...
+            const urlPattern = /https:\/\/dash\.cloudflare\.com\/([a-f0-9]{32})/i;
+            const match = dashboardUrl.match(urlPattern);
+
+            if (match && match[1]) {
+                const accountId = match[1];
+                document.getElementById('account-id').value = accountId;
+                showStatus('account-status', '✅ Account ID extracted successfully!', 'success');
+                hideStatus('url-status');
+                currentAccountId = accountId;
+            } else {
+                document.getElementById('account-id').value = '';
+                showStatus('account-status',
+                    '❌ Could not extract Account ID from URL. Make sure you paste the full URL from your Cloudflare dashboard (e.g., https://dash.cloudflare.com/abc123.../home)',
+                    'error');
+                currentAccountId = '';
+            }
+
+            checkTokenInput();
         }
 
         function checkTokenInput() {
@@ -539,11 +584,6 @@ npx wrangler deploy
             updateDeployButton();
         }
 
-        // Also check account ID input
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('account-id').addEventListener('input', checkTokenInput);
-        });
-
         function updateDeployButton() {
             const deployButtons = document.querySelectorAll('.deploy-button');
             deployButtons.forEach(button => {
@@ -559,7 +599,7 @@ npx wrangler deploy
 
         function generateDeployURL() {
             if (!validatedCredentials) {
-                alert('Please validate your Cloudflare credentials first!');
+                alert('Please enter your Cloudflare credentials first!');
                 return '#';
             }
 
@@ -570,7 +610,7 @@ npx wrangler deploy
             return deployURL.toString();
         }
 
-        // Add click handlers for download links
+        // Setup event listeners when page loads
         document.addEventListener('DOMContentLoaded', function() {
             // Track download clicks
             document.querySelectorAll('a[download]').forEach(link => {
