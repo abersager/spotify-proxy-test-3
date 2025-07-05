@@ -4,124 +4,51 @@ A personal Spotify API proxy that you can deploy to your own Cloudflare Workers 
 
 ## 🚀 Deploy Your Spotify Proxy
 
-**🎉 No GitHub Account Required!** Choose your preferred deployment method:
+### Step 1: Fork This Repository
 
-### 🌐 Method 1: Smart Web Deploy (Easiest)
-
-**Perfect for non-technical users with intelligent validation - no GitHub account needed!**
-
-[![Open Web Deploy](https://img.shields.io/badge/Open%20Web%20Deploy-1db954?style=for-the-badge&logo=cloudflare)](https://abersager.github.io/spotify-proxy/)
-
-Visit the [**Smart Web Deploy Tool**](https://abersager.github.io/spotify-proxy/) for an enhanced experience:
-
-**✨ Smart Features:**
-- 🔍 **Real-time token validation** - Instant feedback as you type
-- 🤖 **Auto-detects Account ID** - No manual copying required
-- ✅ **Permission verification** - Confirms access before deployment
-- 💡 **Interactive help** - Shows exact setup instructions
-- 🚀 **One-click deployment** - Deploy button activates when ready
-
-Choose from multiple deployment methods:
-- **🚀 Smart Cloudflare Deploy** - Validated one-click deployment
-- **💻 Download Scripts** - Both smart and basic versions
-- **⚙️ Manual Setup** - Step-by-step instructions
-
-### 💻 Method 2: Smart Deployment Script
-
-**Enhanced automation with validation and guidance:**
-
-```bash
-# Download the smart deployment script
-curl -O https://raw.githubusercontent.com/abersager/spotify-proxy/main/deploy-smart.js
-
-# Run the script (requires Node.js)
-node deploy-smart.js
-```
-
-**✨ Smart Features:**
-- ✅ **Automatic token validation** - Verifies your API token instantly
-- 🔍 **Auto-detects Account ID** - No need to copy/paste from dashboard
-- 🔐 **Permission checking** - Confirms Workers and KV access
-- 💡 **Interactive troubleshooting** - Guides you through any issues
-- 📋 **Pre-configured setup** - Shows exact token creation steps
-
-**Alternative (Basic Script):**
-```bash
-# Download basic script (manual credential input)
-curl -O https://raw.githubusercontent.com/abersager/spotify-proxy/main/deploy-standalone.js
-node deploy-standalone.js
-```
-
-### ⚡ Method 3: Direct Cloudflare Deploy
-
-**One-click deployment via Cloudflare's platform:**
-
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/abersager/spotify-proxy)
-
-### 🔧 Method 4: GitHub Template (For Developers)
-
-**If you want to customize or contribute:**
+**Get your own copy of the code:**
 
 [![Use this template](https://img.shields.io/badge/Use%20this%20template-2ea44f?style=for-the-badge&logo=github)](https://github.com/abersager/spotify-proxy/generate)
 
-<details>
-<summary>📋 Click here for GitHub template deployment instructions</summary>
-
-**Step 1: Get this template**
 Click the "Use this template" button above to create your own repository.
 
-**Step 2: Get your Cloudflare credentials** (takes 2 minutes)
+### Step 2: Deploy to Cloudflare Workers
 
-#### 🔑 Getting Your Cloudflare API Token
+**One-click deployment from your forked repository:**
 
-1. **Go to Cloudflare Dashboard**: Visit [https://dash.cloudflare.com/profile/api-tokens](https://dash.cloudflare.com/profile/api-tokens)
-2. **Create Token**: Click "Create Token" button
-3. **Use Custom Token**: Click "Get started" next to "Custom token"
-4. **Configure Token**:
-   - **Token name**: `Spotify Proxy Deploy`
-   - **Permissions**: Add these permissions:
-     - `Account` → `Cloudflare Workers:Edit`
-     - `Zone` → `Zone:Read` (if you have any domains)
-   - **Account Resources**: Select "Include All accounts"
-   - **Zone Resources**: Select "Include All zones" (or skip if no domains)
-5. **Create & Copy**: Click "Continue to summary" → "Create Token" → **Copy the token**
-
-#### 🆔 Getting Your Cloudflare Account ID
-
-1. **Go to Cloudflare Dashboard**: Visit [https://dash.cloudflare.com](https://dash.cloudflare.com)
-2. **Copy Account ID**: Look at the right sidebar → copy the "Account ID"
-
-**Step 3: Deploy with one click**
-
-After creating your repository from the template above, click this link to deploy:
-
-🚀 **[Deploy Now - Run Manual Deploy Workflow](https://github.com/YOUR-USERNAME/YOUR-REPO-NAME/actions/workflows/manual-deploy.yml)**
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/YOUR-USERNAME/YOUR-REPO-NAME)
 
 > **Important**: Replace `YOUR-USERNAME/YOUR-REPO-NAME` in the URL above with your actual GitHub username and repository name
 
-> **🔧 Quick Helper**: Use the [**Web Deploy Tool**](https://abersager.github.io/spotify-proxy/) to automatically generate your deploy link
+**🎯 Quick Setup Helper**: Use our [**Setup Assistant**](https://abersager.github.io/spotify-proxy/) to automatically generate your deployment link with your repository details.
 
-Or manually:
-1. Go to your repository on GitHub
-2. Click the **Actions** tab
-3. Click **Manual Deploy** in the left sidebar
-4. Click **Run workflow** button
-5. Fill in your Cloudflare credentials:
-   - **Cloudflare API Token**: (from Step 2 above)
-   - **Cloudflare Account ID**: (from Step 2 above)
-   - **Worker Name**: Leave default or customize
-6. Click **Run workflow**
+### Step 3: Get Your Cloudflare Credentials
 
-**Step 4: Complete setup**
-- Wait for deployment to finish (1-2 minutes)
-- Visit your worker URL (shown in the workflow output)
-- Follow the web setup to connect your Spotify account
+You'll need these during deployment:
 
-</details>
+#### 🔑 Cloudflare API Token
+
+1. Go to [https://dash.cloudflare.com/profile/api-tokens](https://dash.cloudflare.com/profile/api-tokens)
+2. Click "Create Token" → "Get started" (Custom token)
+3. Configure your token:
+   - **Token name**: `spotify-proxy`
+   - **Permissions**:
+     - Account → **Workers Scripts** → **Edit**
+     - Account → **Workers KV Storage** → **Edit**
+   - **Account Resources**: Include All accounts
+4. Click "Continue to summary" → "Create Token" → **Copy the token**
+
+#### 🆔 Account ID (Easy Method)
+
+1. Go to [https://dash.cloudflare.com](https://dash.cloudflare.com)
+2. After login, copy the URL from your browser address bar
+3. Extract the Account ID from the URL (e.g., `https://dash.cloudflare.com/abc123.../home`)
+
+**💡 Tip**: Our [Setup Assistant](https://abersager.github.io/spotify-proxy/) can help extract your Account ID automatically from the URL!
 
 ## ✨ Features
 
-- **Multiple deployment options** - no GitHub account required
+- **One-click deployment** - from your forked repository
 - **No ongoing cost** (free tier is sufficient)
 - **Web-based setup** - no CLI required
 - **Secure OAuth flow** for Spotify authentication
@@ -129,9 +56,9 @@ Or manually:
 - **Simple API endpoints** for current track, recent tracks, and more
 - **Beautiful setup UI** for easy configuration
 
-## 🎯 Setup Process (All Methods)
+## 🎯 Setup Process
 
-After deployment, regardless of method used:
+After deployment:
 
 ### 1. **Create Spotify App**
 - Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)

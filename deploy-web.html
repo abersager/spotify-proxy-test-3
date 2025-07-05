@@ -173,66 +173,48 @@
         .link-button:hover {
             background: #0056b3;
         }
-        .method-selector {
-            display: flex;
-            gap: 10px;
-            margin: 20px 0;
-        }
-        .method-card {
-            flex: 1;
-            padding: 20px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-        }
-        .method-card:hover {
-            border-color: #1db954;
-            background: #f8fff8;
-        }
-        .method-card.active {
-            border-color: #1db954;
-            background: #e8f5e8;
-        }
-        .method-card h3 {
-            margin: 0 0 10px 0;
-            color: #1db954;
-        }
-        .method-card p {
-            margin: 0;
-            color: #666;
-            font-size: 14px;
-        }
+
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎵 Spotify Proxy</h1>
-        <p class="subtitle">Deploy your personal Spotify API proxy without GitHub</p>
+        <p class="subtitle">Deploy your personal Spotify API proxy from your forked repository</p>
 
-        <div class="method-selector">
-            <div class="method-card active" onclick="selectMethod('cloudflare')">
-                <h3>🚀 Cloudflare Deploy</h3>
-                <p>One-click deployment via Cloudflare's platform</p>
+        <div class="alert alert-info">
+            <strong>📋 Prerequisites:</strong><br>
+            1. <strong>Fork this repository</strong> using the <a href="https://github.com/abersager/spotify-proxy/generate" target="_blank">"Use this template"</a> button<br>
+            2. <strong>Get your Cloudflare credentials</strong> (we'll help you below)<br>
+            3. <strong>Deploy to Cloudflare Workers</strong> with one click
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">1</span>
+                Enter Your Repository Details
             </div>
-            <div class="method-card" onclick="selectMethod('script')">
-                <h3>💻 Download Script</h3>
-                <p>Download and run deployment script locally</p>
+            <p>First, tell us about your forked repository:</p>
+
+            <div class="form-group">
+                <label for="repo-url">Your Repository URL:</label>
+                <input type="text" id="repo-url" placeholder="https://github.com/your-username/your-repo-name" oninput="validateRepositoryUrl()">
+                <div id="repo-status" class="alert" style="display: none; margin-top: 10px;"></div>
             </div>
-            <div class="method-card" onclick="selectMethod('manual')">
-                <h3>⚙️ Manual Setup</h3>
-                <p>Step-by-step manual deployment guide</p>
+
+            <div class="alert alert-info">
+                <strong>💡 How to get your repository URL:</strong><br>
+                1. Go to <a href="https://github.com/abersager/spotify-proxy/generate" target="_blank">Create your repository</a> from template<br>
+                2. Copy the URL from your browser address bar<br>
+                3. Paste it above (e.g., <code>https://github.com/your-username/spotify-proxy</code>)
             </div>
         </div>
 
-        <!-- Cloudflare Deploy Method -->
-        <div id="cloudflare-method" class="method-content">
-                            <div class="step">
+        <div class="step">
             <div class="step-title">
-                <span class="step-number">1</span>
-                Create Your Cloudflare API Token
+                <span class="step-number">2</span>
+                Get Your Cloudflare Credentials
             </div>
+            <p>Now let's get your Cloudflare API token and Account ID:</p>
 
             <div id="token-instructions">
                 <p>First, you'll need to create a Cloudflare API token with the right permissions. Follow these exact steps:</p>
@@ -311,139 +293,45 @@
             </div>
         </div>
 
-            <div class="step">
-                <div class="step-title">
-                    <span class="step-number">2</span>
-                    Deploy to Cloudflare
-                </div>
-                <p>Once you've entered your credentials, deploy directly to Cloudflare Workers:</p>
-                <div style="text-align: center; margin: 30px 0;">
-                    <button type="button" class="btn deploy-button" onclick="window.open(generateDeployURL(), '_blank')" disabled>
-                        🚀 Deploy to Cloudflare Workers
-                    </button>
-                </div>
-                <div class="alert alert-info">
-                    <strong>Deployment process:</strong><br>
-                    1. 🔐 Your credentials will be validated during deployment<br>
-                    2. 🚀 One-click deployment to Cloudflare<br>
-                    3. 📱 Automatic worker URL generation<br>
-                    4. 🎵 Ready to use your Spotify proxy!
-                </div>
-            </div>
+        </div>
 
-            <div class="step">
-                <div class="step-title">
-                    <span class="step-number">3</span>
-                    Complete Setup
-                </div>
-                <p>After deployment:</p>
-                <ol>
-                    <li>Visit your worker URL</li>
-                    <li>Enter your Spotify app credentials</li>
-                    <li>Complete OAuth authorization</li>
-                    <li>Start using your proxy!</li>
-                </ol>
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">3</span>
+                Deploy to Cloudflare
+            </div>
+            <p>Once you've entered your repository and credentials, deploy directly to Cloudflare Workers:</p>
+            <div style="text-align: center; margin: 30px 0;">
+                <button type="button" class="btn deploy-button" onclick="window.open(generateDeployURL(), '_blank')" disabled>
+                    🚀 Deploy to Cloudflare Workers
+                </button>
+            </div>
+            <div class="alert alert-info">
+                <strong>Deployment process:</strong><br>
+                1. 🔐 Your credentials will be validated during deployment<br>
+                2. 🚀 One-click deployment to Cloudflare<br>
+                3. 📱 Automatic worker URL generation<br>
+                4. 🎵 Ready to use your Spotify proxy!
             </div>
         </div>
 
-        <!-- Script Download Method -->
-        <div id="script-method" class="method-content hidden">
-            <div class="step">
-                <div class="step-title">
-                    <span class="step-number">1</span>
-                    Download Deployment Script
-                </div>
-                <p>Download the standalone deployment script that will handle everything for you:</p>
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="https://raw.githubusercontent.com/abersager/spotify-proxy/main/deploy-standalone.js" download="deploy-standalone.js" class="btn">
-                        💾 Download deploy-standalone.js
-                    </a>
-                </div>
-                <div class="highlight">
-                    <strong>Requirements:</strong><br>
-                    • Node.js 18+ installed on your computer<br>
-                    • Cloudflare account with API token
-                </div>
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">4</span>
+                Complete Setup
             </div>
-
-            <div class="step">
-                <div class="step-title">
-                    <span class="step-number">2</span>
-                    Run the Script
-                </div>
-                <p>Open your terminal/command prompt and run:</p>
-                <div class="code-block">
-                    node deploy-standalone.js
-                </div>
-                <p>The script will:</p>
-                <ul>
-                    <li>Download the latest source code</li>
-                    <li>Ask for your Cloudflare credentials</li>
-                    <li>Deploy to Cloudflare Workers</li>
-                    <li>Give you the worker URL</li>
-                </ul>
-            </div>
-
-            <div class="step">
-                <div class="step-title">
-                    <span class="step-number">3</span>
-                    Complete Setup
-                </div>
-                <p>Visit your worker URL to complete the Spotify setup process.</p>
-            </div>
-        </div>
-
-        <!-- Manual Setup Method -->
-        <div id="manual-method" class="method-content hidden">
-            <div class="step">
-                <div class="step-title">
-                    <span class="step-number">1</span>
-                    Download Source Code
-                </div>
-                <p>Download the latest source code:</p>
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="https://github.com/abersager/spotify-proxy/archive/refs/heads/main.zip" class="btn">
-                        📥 Download Source Code
-                    </a>
-                </div>
-            </div>
-
-            <div class="step">
-                <div class="step-title">
-                    <span class="step-number">2</span>
-                    Extract and Install
-                </div>
-                <p>Extract the downloaded zip file and run:</p>
-                <div class="code-block">
-npm install
-                </div>
-            </div>
-
-            <div class="step">
-                <div class="step-title">
-                    <span class="step-number">3</span>
-                    Configure and Deploy
-                </div>
-                <p>Set your Cloudflare credentials and deploy:</p>
-                <div class="code-block">
-export CLOUDFLARE_API_TOKEN="your-api-token"
-export CLOUDFLARE_ACCOUNT_ID="your-account-id"
-npx wrangler deploy
-                </div>
-            </div>
-
-            <div class="step">
-                <div class="step-title">
-                    <span class="step-number">4</span>
-                    Complete Setup
-                </div>
-                <p>Visit your worker URL to complete the Spotify setup process.</p>
-            </div>
+            <p>After deployment:</p>
+            <ol>
+                <li>Visit your worker URL</li>
+                <li>Enter your Spotify app credentials</li>
+                <li>Complete OAuth authorization</li>
+                <li>Start using your proxy!</li>
+            </ol>
         </div>
 
         <div class="alert alert-success">
-            <strong>🎉 No GitHub Account Required!</strong><br>
-            All these methods work without needing to create a GitHub account or fork any repositories.
+            <strong>🎉 Fork-Based Deployment!</strong><br>
+            Deploy your own personal Spotify proxy directly from your forked repository to Cloudflare Workers.
         </div>
 
         <div class="step">
@@ -464,24 +352,39 @@ npx wrangler deploy
 
         let currentToken = '';
         let currentAccountId = '';
+        let currentRepositoryUrl = '';
         let validatedCredentials = false;
+        let validatedRepository = false;
 
-        function selectMethod(method) {
-            // Hide all method contents
-            document.querySelectorAll('.method-content').forEach(el => {
-                el.classList.add('hidden');
-            });
+        function validateRepositoryUrl() {
+            const repoUrl = document.getElementById('repo-url').value.trim();
 
-            // Remove active class from all cards
-            document.querySelectorAll('.method-card').forEach(el => {
-                el.classList.remove('active');
-            });
+            if (!repoUrl) {
+                hideStatus('repo-status');
+                currentRepositoryUrl = '';
+                validatedRepository = false;
+                updateDeployButton();
+                return;
+            }
 
-            // Show selected method
-            document.getElementById(method + '-method').classList.remove('hidden');
+            // Validate GitHub repository URL format
+            const githubPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)(?:\/)?$/;
+            const match = repoUrl.match(githubPattern);
 
-            // Add active class to selected card
-            event.target.closest('.method-card').classList.add('active');
+            if (match) {
+                const [, username, repoName] = match;
+                currentRepositoryUrl = `https://github.com/${username}/${repoName}`;
+                validatedRepository = true;
+                showStatus('repo-status', `✅ Repository: ${username}/${repoName}`, 'success');
+            } else {
+                validatedRepository = false;
+                currentRepositoryUrl = '';
+                showStatus('repo-status',
+                    '❌ Invalid repository URL. Please use format: https://github.com/username/repo-name',
+                    'error');
+            }
+
+            updateDeployButton();
         }
 
         function showTokenHelp() {
@@ -501,15 +404,19 @@ npx wrangler deploy
             document.getElementById('token-instructions').style.display = 'block';
             document.getElementById('token-form').style.display = 'none';
             // Clear any existing validation
+            document.getElementById('repo-url').value = '';
             document.getElementById('api-token').value = '';
             document.getElementById('dashboard-url').value = '';
             document.getElementById('account-id').value = '';
+            hideStatus('repo-status');
             hideStatus('token-status');
             hideStatus('account-status');
             hideStatus('url-status');
             document.getElementById('url-status').style.display = 'block';
             document.getElementById('token-help').style.display = 'none';
             validatedCredentials = false;
+            validatedRepository = false;
+            currentRepositoryUrl = '';
             updateDeployButton();
         }
 
@@ -579,15 +486,17 @@ npx wrangler deploy
                 currentAccountId = '';
             }
 
-            // Enable deploy button when both fields have content
+            // Enable deploy button when repository, token, and account ID are all valid
             validatedCredentials = (token.length > 10 && accountId.length > 10);
             updateDeployButton();
         }
 
         function updateDeployButton() {
             const deployButtons = document.querySelectorAll('.deploy-button');
+            const allValid = validatedRepository && validatedCredentials;
+
             deployButtons.forEach(button => {
-                if (validatedCredentials) {
+                if (allValid) {
                     button.disabled = false;
                     button.textContent = '🚀 Deploy to Cloudflare Workers';
                 } else {
@@ -598,14 +507,19 @@ npx wrangler deploy
         }
 
         function generateDeployURL() {
+            if (!validatedRepository) {
+                alert('Please enter your repository URL first!');
+                return '#';
+            }
+
             if (!validatedCredentials) {
                 alert('Please enter your Cloudflare credentials first!');
                 return '#';
             }
 
-            // Generate the Cloudflare deploy URL with pre-filled parameters
+            // Generate the Cloudflare deploy URL with the user's repository
             const deployURL = new URL('https://deploy.workers.cloudflare.com/');
-            deployURL.searchParams.set('url', 'https://github.com/abersager/spotify-proxy');
+            deployURL.searchParams.set('url', currentRepositoryUrl);
 
             return deployURL.toString();
         }
