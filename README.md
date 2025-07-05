@@ -50,6 +50,7 @@ You'll need these during deployment:
 
 - **One-click deployment** - from your forked repository
 - **No ongoing cost** (free tier is sufficient)
+- **🔒 Built-in authentication** - secure your proxy with username/password
 - **Web-based setup** - no CLI required
 - **Secure OAuth flow** for Spotify authentication
 - **KV storage** for credentials and tokens
@@ -60,22 +61,29 @@ You'll need these during deployment:
 
 After deployment:
 
-### 1. **Create Spotify App**
+### 1. **🔒 Set Up Authentication**
+- Visit your deployed worker URL
+- You'll be redirected to `/auth-setup`
+- Choose a username and strong password
+- This secures your personal Spotify data from public access
+
+### 2. **Create Spotify App**
 - Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
 - Create a new app
 - Note your **Client ID** and **Client Secret**
 - Add callback URL: `https://your-worker-name.your-subdomain.workers.dev/callback`
 
-### 2. **Complete Web Setup**
-- Visit your deployed worker URL
+### 3. **Complete Web Setup**
 - Enter your Spotify credentials in the web form
 - Click "Connect Spotify Account" to authorize
 - Test your endpoints!
 
-### 3. **Start Using Your Proxy**
+### 4. **Start Using Your Proxy**
 - `/now-playing` - Current track
 - `/recent` - Recently played tracks
 - `/health` - Status check
+
+**🔐 Authentication Required**: All endpoints (except `/health`) require your username/password via Basic Auth.
 
 ## 🔧 Development
 
