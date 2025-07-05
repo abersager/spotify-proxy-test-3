@@ -1,0 +1,141 @@
+name: Sync with Upstream
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+    # Allow manual triggering
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    name: Sync with upstream
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/abersager/spotify-proxy.git || true
+          git fetch upstream
+
+      - name: Check for upstream changes
+        id: check_changes
+        run: |
+          # Get the latest commit hash from upstream main
+          UPSTREAM_SHA=$(git rev-parse upstream/main)
+          CURRENT_SHA=$(git rev-parse HEAD)
+
+          echo "upstream_sha=$UPSTREAM_SHA" >> $GITHUB_OUTPUT
+          echo "current_sha=$CURRENT_SHA" >> $GITHUB_OUTPUT
+
+          if [ "$UPSTREAM_SHA" != "$CURRENT_SHA" ]; then
+            echo "changes_available=true" >> $GITHUB_OUTPUT
+            echo "📡 New changes available from upstream"
+          else
+            echo "changes_available=false" >> $GITHUB_OUTPUT
+            echo "✅ Repository is up to date"
+          fi
+
+      - name: Create sync branch
+        if: steps.check_changes.outputs.changes_available == 'true'
+        run: |
+          # Create a new branch for the sync
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          BRANCH_NAME="sync-upstream-$TIMESTAMP"
+          git checkout -b $BRANCH_NAME
+          echo "sync_branch=$BRANCH_NAME" >> $GITHUB_ENV
+
+      - name: Merge upstream changes
+        if: steps.check_changes.outputs.changes_available == 'true'
+        run: |
+          # Try to merge upstream changes
+          if git merge upstream/main --no-edit; then
+            echo "✅ Successfully merged upstream changes"
+            echo "merge_success=true" >> $GITHUB_ENV
+          else
+            echo "⚠️ Merge conflicts detected"
+            echo "merge_success=false" >> $GITHUB_ENV
+            git merge --abort
+          fi
+
+      - name: Push sync branch
+        if: steps.check_changes.outputs.changes_available == 'true' && env.merge_success == 'true'
+        run: |
+          git push origin ${{ env.sync_branch }}
+
+      - name: Create Pull Request
+        if: steps.check_changes.outputs.changes_available == 'true' && env.merge_success == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ env.sync_branch }}
+          title: "🔄 Sync with upstream repository"
+          body: |
+            ## 🔄 Upstream Sync
+
+            This PR automatically syncs your repository with the latest changes from [abersager/spotify-proxy](https://github.com/abersager/spotify-proxy).
+
+            ### 📋 Changes
+            - **Upstream commit**: [`${{ steps.check_changes.outputs.upstream_sha }}`](https://github.com/abersager/spotify-proxy/commit/${{ steps.check_changes.outputs.upstream_sha }})
+            - **Your current commit**: [`${{ steps.check_changes.outputs.current_sha }}`](https://github.com/${{ github.repository }}/commit/${{ steps.check_changes.outputs.current_sha }})
+
+            ### 🔍 Review Instructions
+            1. **Review the changes** in the "Files changed" tab
+            2. **Test the updates** if you have any customizations
+            3. **Merge this PR** if everything looks good
+            4. **Close this PR** if you want to skip these updates
+
+            ### ⚠️ Important Notes
+            - If you've made custom changes to the core files, you may need to resolve conflicts manually
+            - Your Spotify credentials and authentication settings will be preserved
+            - Consider testing on a staging deployment before merging
+
+            ### 🤖 Automation
+            This sync runs daily at 2 AM UTC. You can also trigger it manually from the Actions tab.
+
+            ---
+            *🤖 Automated sync powered by GitHub Actions*
+          labels: |
+            enhancement
+            automated
+            upstream-sync
+
+      - name: Handle merge conflicts
+        if: steps.check_changes.outputs.changes_available == 'true' && env.merge_success == 'false'
+        run: |
+          echo "⚠️ Merge conflicts detected!"
+          echo "Please sync manually or resolve conflicts:"
+          echo "1. git remote add upstream https://github.com/abersager/spotify-proxy.git"
+          echo "2. git fetch upstream"
+          echo "3. git merge upstream/main"
+          echo "4. Resolve conflicts and commit"
+
+          # Create an issue to notify about conflicts
+          gh issue create \
+            --title "🔄 Manual sync required - merge conflicts detected" \
+            --body "Automated sync failed due to merge conflicts with upstream repository. Please sync manually using the instructions in the latest workflow run." \
+            --label "help wanted,sync-conflict" || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.check_changes.outputs.changes_available }}" == "true" ]; then
+            if [ "${{ env.merge_success }}" == "true" ]; then
+              echo "✅ Sync completed successfully - PR created"
+            else
+              echo "⚠️ Manual intervention required due to conflicts"
+            fi
+          else
+            echo "✅ Repository is already up to date"
+          fi
