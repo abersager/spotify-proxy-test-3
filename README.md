@@ -10,9 +10,9 @@ A personal Spotify API proxy that you can deploy to your own Cloudflare Workers 
 
 **Perfect for non-technical users - no GitHub account needed!**
 
-[![Open Web Deploy](https://img.shields.io/badge/Open%20Web%20Deploy-1db954?style=for-the-badge&logo=cloudflare)](./deploy-web.html)
+[![Open Web Deploy](https://img.shields.io/badge/Open%20Web%20Deploy-1db954?style=for-the-badge&logo=cloudflare)](https://abersager.github.io/spotify-proxy/)
 
-Simply open [`deploy-web.html`](./deploy-web.html) in your browser and follow the step-by-step guide. Choose from:
+Visit the [**Web Deploy Tool**](https://abersager.github.io/spotify-proxy/) and follow the step-by-step guide. Choose from:
 - **🚀 Cloudflare Deploy Button** - One-click deployment
 - **💻 Download Script** - Automated deployment script
 - **⚙️ Manual Setup** - Step-by-step instructions
@@ -82,7 +82,7 @@ After creating your repository from the template above, click this link to deplo
 
 > **Important**: Replace `YOUR-USERNAME/YOUR-REPO-NAME` in the URL above with your actual GitHub username and repository name
 
-> **🔧 Quick Helper**: Open [`generate-deploy-link.html`](./generate-deploy-link.html) in your browser to automatically generate your deploy link
+> **🔧 Quick Helper**: Use the [**Web Deploy Tool**](https://abersager.github.io/spotify-proxy/) to automatically generate your deploy link
 
 Or manually:
 1. Go to your repository on GitHub
@@ -237,7 +237,7 @@ When using the manual deploy link, replace the repository URL with your own:
 - Template: `https://github.com/YOUR-USERNAME/YOUR-REPO-NAME/actions/workflows/manual-deploy.yml`
 - Example: `https://github.com/abersager/spotify-proxy-test/actions/workflows/manual-deploy.yml`
 
-**🔧 Easy Link Generator**: Open [`generate-deploy-link.html`](./generate-deploy-link.html) in your browser to automatically create your deploy link!
+**🔧 Easy Link Generator**: Use the [**Web Deploy Tool**](https://abersager.github.io/spotify-proxy/) to automatically create your deploy link!
 
 ## 🛟 Troubleshooting
 
