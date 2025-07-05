@@ -257,13 +257,13 @@
                 </div>
 
                 <p style="text-align: center; color: #666; font-size: 14px;">
-                    The form fields will appear after you click the button above
+                    This will open Cloudflare in a new tab and show the form fields below
                 </p>
             </div>
 
             <div id="token-form" style="display: none;">
                 <div class="alert alert-info">
-                    <strong>✅ Great!</strong> Now paste your token below and we'll validate it automatically.
+                    <strong>✅ Great!</strong> Follow the instructions above to create your token, then paste it below and we'll validate it automatically.
                 </div>
 
                 <div class="form-group">
@@ -478,7 +478,8 @@ npx wrangler deploy
         }
 
         function showTokenFields() {
-            document.getElementById('token-instructions').style.display = 'none';
+            // Keep instructions visible for reference
+            document.getElementById('token-instructions').style.display = 'block';
             document.getElementById('token-form').style.display = 'block';
             document.getElementById('api-token').focus();
         }
