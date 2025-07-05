@@ -204,28 +204,6 @@
             color: #666;
             font-size: 14px;
         }
-
-        .iframe-container {
-            position: relative;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
-            margin: 20px 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .iframe-container iframe {
-            width: 100%;
-            height: 600px;
-            border: none;
-            display: block;
-        }
-
-        @media (max-width: 768px) {
-            .iframe-container iframe {
-                height: 500px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -272,40 +250,20 @@
                     7. <strong>Copy the token</strong> and return here
                 </div>
 
-                                <div style="text-align: center; margin: 30px 0;">
-                    <button type="button" class="btn" onclick="showTokenCreation()">
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" class="btn" onclick="showTokenFields()">
                         🔑 Create API Token
-                    </button>
+                    </a>
                 </div>
 
                 <p style="text-align: center; color: #666; font-size: 14px;">
-                    The token creation interface will appear below, alongside the form fields
+                    The form fields will appear after you click the button above
                 </p>
-                        </div>
-
-            <div id="token-iframe-container" style="display: none; margin: 20px 0;">
-                <div class="alert alert-info">
-                    <strong>🎯 Create your token in the interface below, then paste it in the form that appears:</strong>
-                </div>
-                                <div class="iframe-container">
-                    <iframe id="token-iframe"
-                            src="https://dash.cloudflare.com/profile/api-tokens"
-                            title="Cloudflare API Token Creation">
-                    </iframe>
-                </div>
-                <div style="text-align: center; margin: 20px 0;">
-                    <button type="button" class="btn btn-secondary" onclick="showTokenFields()">
-                        ✅ I've Created My Token - Show Form
-                    </button>
-                    <button type="button" class="btn btn-secondary" onclick="openTokenPageInNewTab()">
-                        🔗 Open in New Tab (if iframe doesn't work)
-                    </button>
-                </div>
             </div>
 
             <div id="token-form" style="display: none;">
-                <div class="alert alert-success">
-                    <strong>✅ Perfect!</strong> Now paste your token below and we'll validate it automatically.
+                <div class="alert alert-info">
+                    <strong>✅ Great!</strong> Now paste your token below and we'll validate it automatically.
                 </div>
 
                 <div class="form-group">
@@ -322,7 +280,7 @@
 
                 <div style="text-align: center; margin: 20px 0;">
                     <button type="button" class="btn btn-secondary" onclick="hideTokenFields()">
-                        ← Start Over
+                        ← Back to Instructions
                     </button>
                     <button type="button" class="btn btn-secondary" onclick="showTokenHelp()">
                         💡 Need Help?
@@ -519,63 +477,14 @@ npx wrangler deploy
             helpDiv.style.display = isVisible ? 'none' : 'block';
         }
 
-                        function showTokenCreation() {
-            document.getElementById('token-instructions').style.display = 'block';
-            document.getElementById('token-iframe-container').style.display = 'block';
-            document.getElementById('token-form').style.display = 'none';
-
-            // Add iframe error handling
-            const iframe = document.getElementById('token-iframe');
-
-            // Check if iframe loads successfully
-            iframe.onload = function() {
-                // Try to access iframe content to detect if it's blocked
-                try {
-                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    if (!iframeDoc) {
-                        showIframeError();
-                    }
-                } catch (e) {
-                    // Cross-origin or security error - iframe is likely blocked
-                    showIframeError();
-                }
-            };
-
-            iframe.onerror = function() {
-                showIframeError();
-            };
-
-            // Also check after a timeout in case the iframe loads but is blocked
-            setTimeout(() => {
-                try {
-                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    if (!iframeDoc) {
-                        showIframeError();
-                    }
-                } catch (e) {
-                    showIframeError();
-                }
-            }, 3000);
-        }
-
-        function showIframeError() {
-            const alertDiv = document.querySelector('#token-iframe-container .alert');
-            if (alertDiv.classList.contains('alert-warning')) return; // Already shown
-
-            alertDiv.innerHTML =
-                '<strong>⚠️ Iframe blocked:</strong> Cloudflare prevents embedding their page for security. Please use the "Open in New Tab" button below.';
-            alertDiv.className = 'alert alert-warning';
-        }
-
         function showTokenFields() {
+            document.getElementById('token-instructions').style.display = 'none';
             document.getElementById('token-form').style.display = 'block';
             document.getElementById('api-token').focus();
-            // Keep instructions and iframe visible for reference
         }
 
         function hideTokenFields() {
             document.getElementById('token-instructions').style.display = 'block';
-            document.getElementById('token-iframe-container').style.display = 'none';
             document.getElementById('token-form').style.display = 'none';
             // Clear any existing validation
             document.getElementById('api-token').value = '';
@@ -585,12 +494,6 @@ npx wrangler deploy
             document.getElementById('token-help').style.display = 'none';
             validatedCredentials = false;
             updateDeployButton();
-        }
-
-        function openTokenPageInNewTab() {
-            window.open('https://dash.cloudflare.com/profile/api-tokens', '_blank');
-            // Also show the form since they'll be working in a new tab
-            showTokenFields();
         }
 
         async function makeAPIRequest(url, token, method = 'GET', data = null) {
