@@ -1,8 +1,8 @@
 {
   "name": "Spotify Proxy",
   "description": "Personal Spotify API proxy deployed via Cloudflare Workers",
-  "repository": "https://github.com/your-username/spotify-proxy",
-  "logo": "https://raw.githubusercontent.com/your-username/spotify-proxy/main/.github/logo.svg",
+  "repository": "https://github.com/abersager/spotify-proxy",
+  "logo": "https://raw.githubusercontent.com/abersager/spotify-proxy/main/.github/logo.svg",
   "success_url": "/",
   "env": {
     "ENVIRONMENT": {

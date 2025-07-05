@@ -5,7 +5,7 @@
 ### Option 1: GitHub Template (Easiest)
 
 1. **Create your repository**
-   - Click [Use this template](https://github.com/your-username/spotify-proxy/generate)
+   - Click [Use this template](https://github.com/abersager/spotify-proxy/generate)
    - Choose a repository name (e.g., `my-spotify-proxy`)
 
 2. **Get Cloudflare credentials**
@@ -28,7 +28,7 @@
 
 ### Option 2: Direct Deploy Button
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/your-username/spotify-proxy)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/abersager/spotify-proxy)
 
 Click the button above and follow the prompts.
 

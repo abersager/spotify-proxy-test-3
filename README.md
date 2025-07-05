@@ -8,7 +8,7 @@ Deploy your own Spotify proxy in under 2 minutes:
 
 ### 🔥 Method 1: GitHub Template (Recommended)
 
-[![Use this template](https://img.shields.io/badge/Use%20this%20template-2ea44f?style=for-the-badge&logo=github)](https://github.com/your-username/spotify-proxy/generate)
+[![Use this template](https://img.shields.io/badge/Use%20this%20template-2ea44f?style=for-the-badge&logo=github)](https://github.com/abersager/spotify-proxy/generate)
 
 1. **Click "Use this template"** to create your own repository
 2. **Go to Actions tab** in your new repository
@@ -17,7 +17,7 @@ Deploy your own Spotify proxy in under 2 minutes:
 
 ### ⚡ Method 2: Direct Fork & Deploy
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/your-username/spotify-proxy)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/abersager/spotify-proxy)
 
 ### 🔧 Method 3: Manual Setup
 

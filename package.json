@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "description": "A personal Spotify API proxy deployed via Cloudflare Workers",
   "main": "src/index.ts",
-  "homepage": "https://github.com/your-username/spotify-proxy",
+  "homepage": "https://github.com/abersager/spotify-proxy",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/spotify-proxy.git"
+    "url": "https://github.com/abersager/spotify-proxy.git"
   },
   "bugs": {
-    "url": "https://github.com/your-username/spotify-proxy/issues"
+    "url": "https://github.com/abersager/spotify-proxy/issues"
   },
   "scripts": {
     "dev": "wrangler dev",
