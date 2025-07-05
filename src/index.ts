@@ -12,6 +12,13 @@ export interface Env {
   ENVIRONMENT: string;
 }
 
+// CORS headers for all responses
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
 export default {
   async fetch(
     request: Request,
@@ -20,13 +27,6 @@ export default {
   ): Promise<Response> {
     const url = new URL(request.url);
     const pathname = url.pathname;
-
-    // CORS headers for all responses
-    const corsHeaders = {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    };
 
     // Handle preflight requests
     if (request.method === "OPTIONS") {
@@ -85,13 +85,16 @@ async function handleRoot(request: Request, env: Env): Promise<Response> {
         <p>Your personal Spotify API proxy is running!</p>
         <a href="/setup" class="button">Setup OAuth</a>
         <a href="/health" class="button">Health Check</a>
-      </div>
+            </div>
     </body>
     </html>
   `;
 
   return new Response(html, {
-    headers: { "Content-Type": "text/html" },
+    headers: {
+      "Content-Type": "text/html",
+      ...corsHeaders,
+    },
   });
 }
 
@@ -136,7 +139,10 @@ async function handleSetup(request: Request, env: Env): Promise<Response> {
   // Return setup HTML
   const html = await getSetupHTML();
   return new Response(html, {
-    headers: { "Content-Type": "text/html" },
+    headers: {
+      "Content-Type": "text/html",
+      ...corsHeaders,
+    },
   });
 }
 
@@ -199,7 +205,10 @@ async function handleCallback(request: Request, env: Env): Promise<Response> {
     </html>
   `,
     {
-      headers: { "Content-Type": "text/html" },
+      headers: {
+        "Content-Type": "text/html",
+        ...corsHeaders,
+      },
     }
   );
 }
@@ -216,7 +225,10 @@ async function handleNowPlaying(request: Request, env: Env): Promise<Response> {
       }),
       {
         status: 401,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
       }
     );
   }
@@ -230,7 +242,10 @@ async function handleNowPlaying(request: Request, env: Env): Promise<Response> {
     return new Response(
       JSON.stringify({ playing: false, message: "No track currently playing" }),
       {
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
       }
     );
   }
@@ -240,14 +255,20 @@ async function handleNowPlaying(request: Request, env: Env): Promise<Response> {
       JSON.stringify({ error: "Failed to fetch current track" }),
       {
         status: spotifyResponse.status,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
       }
     );
   }
 
   const data = await spotifyResponse.json();
   return new Response(JSON.stringify(data), {
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...corsHeaders,
+    },
   });
 }
 
@@ -263,7 +284,10 @@ async function handleRecent(request: Request, env: Env): Promise<Response> {
       }),
       {
         status: 401,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
       }
     );
   }
@@ -278,14 +302,20 @@ async function handleRecent(request: Request, env: Env): Promise<Response> {
       JSON.stringify({ error: "Failed to fetch recent tracks" }),
       {
         status: spotifyResponse.status,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
       }
     );
   }
 
   const data = await spotifyResponse.json();
   return new Response(JSON.stringify(data), {
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...corsHeaders,
+    },
   });
 }
 
@@ -311,7 +341,10 @@ async function handleHealth(request: Request, env: Env): Promise<Response> {
   };
 
   return new Response(JSON.stringify(health, null, 2), {
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...corsHeaders,
+    },
   });
 }
 
