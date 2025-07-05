@@ -228,44 +228,73 @@
 
         <!-- Cloudflare Deploy Method -->
         <div id="cloudflare-method" class="method-content">
-                    <div class="step">
+                            <div class="step">
             <div class="step-title">
                 <span class="step-number">1</span>
-                Get & Validate Cloudflare Credentials
-            </div>
-            <p>Let's set up your Cloudflare credentials with automatic validation:</p>
-
-            <div class="form-group">
-                <label for="api-token">Cloudflare API Token:</label>
-                <input type="password" id="api-token" placeholder="Enter your API token..." oninput="validateToken()">
-                <div id="token-status" class="alert" style="display: none; margin-top: 10px;"></div>
+                Create Your Cloudflare API Token
             </div>
 
-            <div class="form-group">
-                <label for="account-id">Account ID:</label>
-                <input type="text" id="account-id" placeholder="Will be auto-detected..." readonly>
-                <div id="account-status" class="alert" style="display: none; margin-top: 10px;"></div>
+            <div id="token-instructions">
+                <p>First, you'll need to create a Cloudflare API token with the right permissions. Follow these exact steps:</p>
+
+                <div class="highlight">
+                    <strong>📋 Exact Setup Instructions:</strong><br>
+                    1. Click the button below to open Cloudflare's token page<br>
+                    2. Click "<strong>Create Token</strong>" → "<strong>Get started</strong>" (Custom token)<br>
+                    3. <strong>Token name:</strong> <code>spotify-proxy</code><br>
+                    4. <strong>Permissions:</strong><br>
+                       • Account → <strong>Cloudflare Workers</strong> → <strong>Edit</strong><br>
+                       • Account → <strong>Workers KV Storage</strong> → <strong>Edit</strong><br>
+                    5. <strong>Account Resources:</strong> Include All accounts<br>
+                    6. Click "<strong>Continue to summary</strong>" → "<strong>Create Token</strong>"<br>
+                    7. <strong>Copy the token</strong> and return here
+                </div>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" class="btn" onclick="showTokenFields()">
+                        🔑 Create API Token
+                    </a>
+                </div>
+
+                <p style="text-align: center; color: #666; font-size: 14px;">
+                    The form fields will appear after you click the button above
+                </p>
             </div>
 
-            <div style="text-align: center; margin: 20px 0;">
-                <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" class="link-button">
-                    Create API Token
-                </a>
-                <button type="button" class="btn btn-secondary" onclick="showTokenHelp()">
-                    💡 Token Setup Help
-                </button>
-            </div>
+            <div id="token-form" style="display: none;">
+                <div class="alert alert-info">
+                    <strong>✅ Great!</strong> Now paste your token below and we'll validate it automatically.
+                </div>
 
-            <div id="token-help" class="highlight" style="display: none;">
-                <strong>📋 Exact Setup Instructions:</strong><br>
-                1. Click "Create Token" → "Get started" (Custom token)<br>
-                2. <strong>Token name:</strong> <code>spotify-proxy</code><br>
-                3. <strong>Permissions:</strong><br>
-                   • Account → Cloudflare Workers → Edit<br>
-                   • Account → Workers KV Storage → Edit<br>
-                4. <strong>Account Resources:</strong> Include All accounts<br>
-                5. Click "Continue to summary" → "Create Token"<br>
-                6. Copy the token and paste it above ☝️
+                <div class="form-group">
+                    <label for="api-token">Cloudflare API Token:</label>
+                    <input type="password" id="api-token" placeholder="Paste your API token here..." oninput="validateToken()">
+                    <div id="token-status" class="alert" style="display: none; margin-top: 10px;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="account-id">Account ID:</label>
+                    <input type="text" id="account-id" placeholder="Will be auto-detected..." readonly>
+                    <div id="account-status" class="alert" style="display: none; margin-top: 10px;"></div>
+                </div>
+
+                <div style="text-align: center; margin: 20px 0;">
+                    <button type="button" class="btn btn-secondary" onclick="hideTokenFields()">
+                        ← Back to Instructions
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="showTokenHelp()">
+                        💡 Need Help?
+                    </button>
+                </div>
+
+                <div id="token-help" class="highlight" style="display: none;">
+                    <strong>🔧 Troubleshooting:</strong><br>
+                    • Make sure you selected <strong>both</strong> permissions: Workers Scripts + KV Storage<br>
+                    • Check that permission level is set to <strong>Edit</strong>, not Read<br>
+                    • Ensure "Account Resources" is set to <strong>Include All accounts</strong><br>
+                    • If token is invalid, create a new one with the correct settings<br><br>
+                    <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" class="link-button">Create New Token</a>
+                </div>
             </div>
         </div>
 
@@ -446,6 +475,25 @@ npx wrangler deploy
             const helpDiv = document.getElementById('token-help');
             const isVisible = helpDiv.style.display !== 'none';
             helpDiv.style.display = isVisible ? 'none' : 'block';
+        }
+
+        function showTokenFields() {
+            document.getElementById('token-instructions').style.display = 'none';
+            document.getElementById('token-form').style.display = 'block';
+            document.getElementById('api-token').focus();
+        }
+
+        function hideTokenFields() {
+            document.getElementById('token-instructions').style.display = 'block';
+            document.getElementById('token-form').style.display = 'none';
+            // Clear any existing validation
+            document.getElementById('api-token').value = '';
+            document.getElementById('account-id').value = '';
+            hideStatus('token-status');
+            hideStatus('account-status');
+            document.getElementById('token-help').style.display = 'none';
+            validatedCredentials = false;
+            updateDeployButton();
         }
 
         async function makeAPIRequest(url, token, method = 'GET', data = null) {
